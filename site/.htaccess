@@ -29,16 +29,21 @@ RewriteRule ^ / [R=301,L]
 RewriteCond %{THE_REQUEST} \s/+([^\s?]+)\.html[\s?] [NC]
 RewriteRule ^ /%1 [R=301,L]
 
-# Duda serves different HTML to tablets and phones (by User-Agent); _t/ and _m/ hold those copies.
+# Duda serves different HTML to tablets and phones (by User-Agent); _t/ and _m/ hold those copies,
+# and _a/ (only where Duda's Android-phone HTML differs from iPhone's) the Android phone copy.
 RewriteCond %{HTTP_USER_AGENT} "iPad|Tablet|Kindle|Silk/|PlayBook|Nexus (7|9|10)|SM-T|SM-X|Android(?!.*Mobile)" [NC]
 RewriteRule ^ - [E=DEV:_t]
 RewriteCond %{ENV:DEV} ^$
+RewriteCond %{HTTP_USER_AGENT} "Android.*Mobile" [NC]
+RewriteCond %{DOCUMENT_ROOT}/_a -d
+RewriteRule ^ - [E=DEV:_a]
+RewriteCond %{ENV:DEV} ^$
 RewriteCond %{HTTP_USER_AGENT} "iPhone|iPod|Android.*Mobile|Windows Phone|IEMobile|BlackBerry|BB10|Opera Mini|webOS" [NC]
 RewriteRule ^ - [E=DEV:_m]
-RewriteCond %{ENV:DEV} ^_[mt]$
+RewriteCond %{ENV:DEV} ^_[mta]$
 RewriteCond %{DOCUMENT_ROOT}/%{ENV:DEV}/index.html -f
 RewriteRule ^$ %{ENV:DEV}/index.html [L]
-RewriteCond %{ENV:DEV} ^_[mt]$
+RewriteCond %{ENV:DEV} ^_[mta]$
 RewriteCond %{DOCUMENT_ROOT}/%{ENV:DEV}/$1.html -f
 RewriteRule ^(.+?)/?$ %{ENV:DEV}/$1.html [L]
 
